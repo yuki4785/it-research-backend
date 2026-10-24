@@ -20,7 +20,11 @@ app.add_middleware(
 RESEARCH_DIR = Path("/Users/satoyuki/dev/life/skills/plugins/it-research/research")
 DB_PATH = "/Users/satoyuki/dev/it-research-backend/research.db"
 
-SOURCE_ORDER = ["はてなブックマーク", "Hacker News", "Reddit", "Aikido Security", "Wiz Research"]
+SOURCE_ORDER = [
+    "はてなブックマーク", "Zenn", "Qiita", "Publickey", "ITmedia NEWS",
+    "Hacker News", "Reddit", "Lobsters", "Ars Technica", "GitHub Blog",
+    "Aikido Security", "Wiz Research",
+]
 
 
 @contextmanager
