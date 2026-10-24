@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException
+from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import contextmanager
 import json
+import logging
 import os
 import re
 import sqlite3
@@ -19,8 +21,19 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-RESEARCH_DIR = Path(os.environ.get("RESEARCH_DIR", BASE_DIR / "research"))
-DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "research.db"))
+load_dotenv(BASE_DIR / ".env")
+
+logger = logging.getLogger("uvicorn.error")
+
+
+def resolve_path(env_name: str, default: str) -> Path:
+    """環境変数からパスを取得する（未設定・空なら default、相対パスは BASE_DIR 基準）"""
+    path = Path(os.environ.get(env_name) or default).expanduser()
+    return path if path.is_absolute() else BASE_DIR / path
+
+
+RESEARCH_DIR = resolve_path("RESEARCH_DIR", "research")
+DB_PATH = resolve_path("DB_PATH", "research.db")
 
 SOURCE_ORDER = ["はてなブックマーク", "Hacker News", "Reddit", "Aikido Security", "Wiz Research"]
 
@@ -37,6 +50,9 @@ def get_db():
 
 
 def init_db():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if not RESEARCH_DIR.is_dir():
+        logger.warning("RESEARCH_DIR not found: %s (sync will import nothing)", RESEARCH_DIR)
     with get_db() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS articles (
