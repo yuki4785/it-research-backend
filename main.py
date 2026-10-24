@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import contextmanager
 import json
+import os
 import re
 import sqlite3
 from pathlib import Path
@@ -17,8 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-RESEARCH_DIR = Path("/Users/satoyuki/dev/life/skills/plugins/it-research/research")
-DB_PATH = "/Users/satoyuki/dev/it-research-backend/research.db"
+BASE_DIR = Path(__file__).resolve().parent
+RESEARCH_DIR = Path(os.environ.get("RESEARCH_DIR", BASE_DIR / "research"))
+DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "research.db"))
 
 SOURCE_ORDER = ["はてなブックマーク", "Hacker News", "Reddit", "Aikido Security", "Wiz Research"]
 
